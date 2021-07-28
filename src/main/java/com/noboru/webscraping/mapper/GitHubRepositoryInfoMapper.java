@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.noboru.webscraping.dto.GitHubRepositoryInfoDTO;
+import com.noboru.webscraping.model.GitHubRepository;
 import com.noboru.webscraping.model.GitHubRepositoryInfo;
 
 import lombok.NoArgsConstructor;
@@ -11,9 +12,14 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public final class GitHubRepositoryInfoMapper {
     
-    // public static GitHubRepositoryInfo toEntity(GitHubRepositoryInfoDTO dto) {
-    //     return new GitHubRepositoryInfo();
-    // }
+    public static GitHubRepositoryInfo toEntity(GitHubRepositoryInfoDTO dto, GitHubRepository repository) {
+        return new GitHubRepositoryInfo(
+            dto.getExtension(),
+            dto.getCount(),
+            dto.getLines(),
+            dto.getBytes(),
+            repository);
+    }
 
     public static GitHubRepositoryInfoDTO toDTO(GitHubRepositoryInfo entity) {
         return new GitHubRepositoryInfoDTO(
@@ -29,4 +35,9 @@ public final class GitHubRepositoryInfoMapper {
         .collect(Collectors.toList());
     }
     
+    public static List<GitHubRepositoryInfo> toListEntity(List<GitHubRepositoryInfoDTO> list, GitHubRepository repository) {
+        return list.stream()
+        .map(dto -> GitHubRepositoryInfoMapper.toEntity(dto, repository))
+        .collect(Collectors.toList());
+    }
 }

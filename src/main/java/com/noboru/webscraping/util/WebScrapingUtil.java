@@ -13,7 +13,7 @@ import com.noboru.webscraping.util.exception.WebScrapingException;
 
 public final class WebScrapingUtil {
 
-    private static final int DELAY = 2;
+    private static final int DELAY = 1;
 
     public static Boolean isURLValid(String url) {
         return url.startsWith("http://") || url.startsWith("https://");

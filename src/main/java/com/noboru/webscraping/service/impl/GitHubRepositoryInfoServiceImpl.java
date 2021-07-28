@@ -2,6 +2,7 @@ package com.noboru.webscraping.service.impl;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,9 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.noboru.webscraping.dto.GitHubRepositoryInfoDTO;
+import com.noboru.webscraping.mapper.GitHubRepositoryInfoMapper;
 import com.noboru.webscraping.model.GitHubRepository;
+import com.noboru.webscraping.repository.GitHubRepositoryInfoRepository;
 import com.noboru.webscraping.repository.GitHubRepositoryRepository;
 import com.noboru.webscraping.service.GitHubRepositoryInfoService;
 import com.noboru.webscraping.shared.exception.ErrorException;
@@ -45,6 +48,9 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
     @Autowired
     private GitHubRepositoryRepository gitHubRepositoryRepository;
 
+    @Autowired
+    private GitHubRepositoryInfoRepository gitHubRepositoryInfoRepository;
+
     @Override
     public List<GitHubRepositoryInfoDTO> findAllByUrl(String url) throws WebScrapingException, ErrorException {
         if(WebScrapingUtil.isURLInvalid(url)) {
@@ -52,23 +58,24 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
         }
         LocalDateTime moreUpdated = getLastUpdateTime(url);
         GitHubRepository repository = gitHubRepositoryRepository.findByUrl(url);
+        List<GitHubRepositoryInfoDTO> listDTO = new ArrayList<>();        
+
         if(Objects.nonNull(repository) && repository.getLastUpdateTime().equals(moreUpdated)) {
-            System.out.println(repository.getUrl() + repository.getLastUpdateTime());
-            
+            listDTO.addAll(GitHubRepositoryInfoMapper.toListDTO(repository.getGitHubRepositoryInfos()));
         } else {
+            Map<String, GitHubRepositoryInfoDTO> mapExtensionInfo = new HashMap<>();
+            captureCalculateGitHubRepositoryInfo(mapExtensionInfo, url);
+            listDTO = mapExtensionInfo.values().stream().collect(Collectors.toList());
 
-            // GitHubRepository newRepository = new GitHubRepository();
-            // newRepository.setUrl(url);
-            // newRepository.setLastUpdateTime(lastUpdateTime);
-            // gitHubRepositoryRepository.save(newRepository);
+            GitHubRepository newRepository = new GitHubRepository();
+            newRepository.setUrl(url);
+            newRepository.setLastUpdateTime(moreUpdated);
+            // newRepository.setGitHubRepositoryInfos(GitHubRepositoryInfoMapper.toListEntity(listDTO, repository));
+            newRepository = gitHubRepositoryRepository.save(newRepository);
+            GitHubRepositoryInfoMapper.toListEntity(listDTO, repository).stream()
+                                                                        .forEach(info -> gitHubRepositoryInfoRepository.save(info));
         }
-
-        Map<String, GitHubRepositoryInfoDTO> mapExtensionInfo = new HashMap<>(); 
-        
-        // captureCalculateGitHubRepositoryInfo(mapExtensionInfo, url);
-        
-        List<GitHubRepositoryInfoDTO> lista = mapExtensionInfo.values().stream().collect(Collectors.toList());
-        return lista;
+        return listDTO;
     }
 
     private void captureCalculateGitHubRepositoryInfo(Map<String, GitHubRepositoryInfoDTO> mapExtensionInfo, String url) 

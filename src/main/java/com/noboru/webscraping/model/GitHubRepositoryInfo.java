@@ -4,6 +4,8 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -25,4 +27,16 @@ public class GitHubRepositoryInfo {
     private Long count;
     private Long lines;
     private Long bytes;
+
+    @ManyToOne
+    @JoinColumn(name = "repository_id")
+    private GitHubRepository repository;
+
+    public GitHubRepositoryInfo(String extension, Long count, Long lines, Long bytes, GitHubRepository repository) {
+        this.extension = extension;
+        this.count = count;
+        this.lines = lines;
+        this.bytes = bytes;
+        this.repository = repository;
+    }
 }

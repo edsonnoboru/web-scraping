@@ -3,6 +3,7 @@ package com.noboru.webscraping.model;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -28,6 +29,6 @@ public class GitHubRepository {
     private String url;
     private LocalDateTime lastUpdateTime;
 
-    @OneToMany
+    @OneToMany(mappedBy = "repository", cascade = CascadeType.ALL)
     private List<GitHubRepositoryInfo> gitHubRepositoryInfos;
 }
