@@ -29,7 +29,7 @@ public class GitHubRepositoryInfo {
     private Long bytes;
 
     @ManyToOne
-    @JoinColumn(name = "repository_id")
+    @JoinColumn(name = "git_hub_repository_id")
     private GitHubRepository repository;
 
     public GitHubRepositoryInfo(String extension, Long count, Long lines, Long bytes, GitHubRepository repository) {

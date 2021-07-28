@@ -1,7 +1,6 @@
 package com.noboru.webscraping.service.impl;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -70,10 +69,10 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
             GitHubRepository newRepository = new GitHubRepository();
             newRepository.setUrl(url);
             newRepository.setLastUpdateTime(moreUpdated);
-            // newRepository.setGitHubRepositoryInfos(GitHubRepositoryInfoMapper.toListEntity(listDTO, repository));
             newRepository = gitHubRepositoryRepository.save(newRepository);
-            GitHubRepositoryInfoMapper.toListEntity(listDTO, repository).stream()
-                                                                        .forEach(info -> gitHubRepositoryInfoRepository.save(info));
+            GitHubRepositoryInfoMapper.toListEntity(listDTO, newRepository)
+                                      .stream()
+                                      .forEach(info -> gitHubRepositoryInfoRepository.save(info));
         }
         return listDTO;
     }
@@ -85,13 +84,13 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
         List<String> directoryUrls = WebScrapingUtil.getListGroupContentFromPattern(PATTERN_ELEMENT_DIRECTORY, NUM_GROUP_PATTERN_DIRECTORY, html);
         List<String> fileUrls = WebScrapingUtil.getListGroupContentFromPattern(PATTERN_ELEMENT_FILE, NUM_GROUP_PATTERN_FILE, html);
 
-        // directoryUrls.forEach((directoryUrl) -> {
-        //     try {
-        //         captureCalculateGitHubRepositoryInfo(mapExtensionInfo, BASE_URL_GIT_HUB + directoryUrl);
-        //     } catch (ErrorException | WebScrapingException e) {
-        //         throw new ErrorException("There was a problem capturing and calculating repository information!");
-        //     }
-        // });
+        directoryUrls.forEach((directoryUrl) -> {
+            try {
+                captureCalculateGitHubRepositoryInfo(mapExtensionInfo, BASE_URL_GIT_HUB + directoryUrl);
+            } catch (ErrorException | WebScrapingException e) {
+                throw new ErrorException("There was a problem capturing and calculating repository information!");
+            }
+        });
         
         fileUrls.forEach((fileUrl) -> {
             try {
