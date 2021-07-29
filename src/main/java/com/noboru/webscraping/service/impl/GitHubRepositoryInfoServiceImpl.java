@@ -37,7 +37,7 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
     private static final int NUM_GROUP_PATTERN_LINES_FILE = 1;
     private static final int NUM_GROUP_PATTERN_SIZE_FILE = 2;
 
-    private static final String PATTERN_ELEMENT_VIEW_RAW = "<div class=\"text-center p-3\">          <a href=\"([^\"]*)\">View raw</a>";
+    private static final String PATTERN_ELEMENT_DOWNLOAD_BUTTON = "<a href=\"([^\"]*)\" id=\"raw-url\" role=\"button\" data-view-component=\"true\" class=\"btn-sm btn BtnGroup-item\">    Download  </a>";
     private static final String PATTERN_ELEMENT_ONLY_SIZE_FILE = "<div    class=\"Box-header py-2 pr-2 d-flex flex-shrink-0 flex-md-row flex-items-center\"      >  <div class=\"text-mono f6 flex-auto pr-3 flex-order-2 flex-md-order-1\">([^\"]*)</div>";
     private static final int NUM_GROUP_PATTERN_ONLY_SIZE_FILE = 1;
 
@@ -95,12 +95,12 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
         fileUrls.forEach((fileUrl) -> {
             try {
                 String fileHtml = WebScrapingUtil.getHTML(BASE_URL_GIT_HUB + fileUrl);
-                System.out.println("FILE: " + fileUrl);
+            
                 String stringFileName = WebScrapingUtil.getContentFromPattern(PATTERN_ELEMENT_NAME_FILE, NUM_GROUP_PATTERN_NAME_FILE, fileHtml);
                 String stringExtension = getExtension(stringFileName);
 
                 Long longNumberLines;
-                
+
                 Boolean isFileWithoutNumberLines = isFileWithViewRaw(fileHtml);
                 if(isFileWithoutNumberLines) {
                     longNumberLines = 0L;
@@ -173,7 +173,7 @@ public class GitHubRepositoryInfoServiceImpl implements GitHubRepositoryInfoServ
     }
 
     private Boolean isFileWithViewRaw(String html) {
-        return Pattern.compile(PATTERN_ELEMENT_VIEW_RAW).matcher(html).find();
+        return Pattern.compile(PATTERN_ELEMENT_DOWNLOAD_BUTTON).matcher(html).find();
     }
 
     private LocalDateTime getLastUpdateTime(String url) throws ErrorException, WebScrapingException {
